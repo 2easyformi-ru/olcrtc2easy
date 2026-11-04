@@ -12,6 +12,7 @@ target = pathlib.Path(".jitsi-patch")
 if target.exists():
     shutil.rmtree(target)
 shutil.copytree(source, target)
+# ai-generated: module cache files are read-only; make the copied patch writable.
 path = target / "internal/xmpp/conn.go"
 content = path.read_text()
 needle = "cfg := fetchConfig(ctx, host, httpClient)"
@@ -23,6 +24,7 @@ replacement = needle + """
 		cfg.mucDomain = "muc.meet.jitsi"
 	}
 """
+path.chmod(path.stat().st_mode | 0o200)
 path.write_text(content.replace(needle, replacement, 1))
 subprocess.run(["gofmt", "-w", str(path)], check=True)
 subprocess.run(["go", "mod", "edit", "-replace=github.com/zarazaex69/j=./.jitsi-patch"], check=True)
