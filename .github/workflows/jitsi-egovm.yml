@@ -1,0 +1,34 @@
+name: Jitsi egovm test binary
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - fix/jitsi-egovm-config
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.26.x'
+          cache: true
+      - name: Patch pinned Jitsi dependency
+        run: python3 scripts/patch_jitsi_egovm.py
+      - name: Build linux amd64
+        env:
+          CGO_ENABLED: '0'
+          GOOS: linux
+          GOARCH: amd64
+        run: go build -trimpath -ldflags="-s -w" -o olcrtc-jitsi-egovm ./cmd/olcrtc
+      - name: Upload binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: olcrtc-jitsi-egovm-linux-amd64
+          path: olcrtc-jitsi-egovm
+          retention-days: 7
