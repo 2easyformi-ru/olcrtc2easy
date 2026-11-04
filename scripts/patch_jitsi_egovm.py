@@ -24,6 +24,7 @@ replacement = needle + """
 		cfg.mucDomain = "muc.meet.jitsi"
 	}
 """
+path.parent.chmod(path.parent.stat().st_mode | 0o200)
 path.chmod(path.stat().st_mode | 0o200)
 path.write_text(content.replace(needle, replacement, 1))
 subprocess.run(["gofmt", "-w", str(path)], check=True)
